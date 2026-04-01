@@ -3,221 +3,277 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IoT Weather Dashboard</title>
+    <title>IoT Weather Dashboard - Temp & Humidity</title>
+    <!-- Font chữ điện tử -->
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    <script src="https://eoh-jsc.github.io/era-widget/era_widget.js"></script>
+    
     <style>
         :root {
-            --bg-color: #050505; --card-bg: #1a1a1a; --text-main: #ffffff;
-            --text-muted: #888888; --glow-blue: #00e5ff; --glow-orange: #ffaa00;
-            --glow-green: #00ff00; --glow-red: #ff3333;
+            --bg-color: #050505; 
+            --card-bg: #151515; /* Sáng hơn nền một chút để không bị chìm */
+            --text-main: #ffffff;
+            --text-muted: #888888; 
+            --glow-blue: #00e5ff; 
+            --glow-orange: #ffaa00;
+            --glow-green: #00ff00; 
+            --glow-red: #ff3333;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .unit-toggle { position: absolute; top: 20px; right: 20px; background: #333; color: white; border: 1px solid #555; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; z-index: 100; }
-        .unit-toggle:hover { background: #444; }
-        .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; max-width: 1000px; width: 100%; }
-        .card { background-color: var(--card-bg); border-radius: 12px; padding: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; position: relative; overflow: hidden; border: 1px solid #2a2a2a; }
-        .digital-font { font-family: 'Share Tech Mono', monospace; line-height: 1; }
-        .forecast { grid-column: span 2; } .indoor { grid-column: span 2; }
-        .pressure { grid-column: span 1; } .tide { grid-column: span 1; }
-        .outdoor { grid-column: span 2; } .sunrise-sunset { grid-column: span 1; }
-        .city-times { grid-column: span 1; } .clock-panel { grid-column: span 2; }
-        .title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; color: var(--text-muted); font-weight: bold; display: flex; justify-content: space-between; }
-        .text-blue { color: var(--glow-blue); text-shadow: 0 0 10px rgba(0, 229, 255, 0.5); }
-        .text-orange { color: var(--glow-orange); text-shadow: 0 0 10px rgba(255, 170, 0, 0.5); }
-        .text-green { color: var(--glow-green); } .text-red { color: var(--glow-red); }
-        .text-white { color: #fff; text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
-        .sensor-data { display: flex; align-items: baseline; justify-content: space-between; margin-top: auto; }
-        .temp-value { font-size: 5rem; letter-spacing: -2px; } .humid-value { font-size: 4rem; }
-        .unit { font-size: 1.5rem; vertical-align: super; margin-left: 2px; font-family: sans-serif; }
-        .status-bar { display: flex; gap: 5px; margin-top: 10px; font-size: 0.6rem; justify-content: flex-end; }
-        .status-badge { padding: 2px 8px; border-radius: 10px; background: #333; color: #777; }
-        .status-badge.active.good { background: var(--glow-green); color: #000; font-weight: bold; box-shadow: 0 0 5px var(--glow-green); }
-        .status-badge.active.dry { background: var(--glow-orange); color: #000; font-weight: bold; }
-        .status-badge.active.humid { background: var(--glow-blue); color: #000; font-weight: bold; }
-        .forecast-icons { display: flex; justify-content: space-around; align-items: center; flex-grow: 1; font-size: 3rem; }
-        .forecast-icons span { filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
-        .clock-display { font-size: 6rem; text-align: center; margin-top: -10px; }
-        .date-display { font-size: 1.5rem; display: flex; justify-content: space-between; margin-top: 10px; color: #ccc; }
-        .pressure-val { font-size: 2.5rem; margin-bottom: 10px; }
-        .bar-chart { display: flex; align-items: flex-end; gap: 3px; height: 30px; margin-top: 15px; }
-        .bar { width: 10px; background: var(--glow-green); border-radius: 2px 2px 0 0; opacity: 0.7; }
-        .tide-indicator { display: flex; flex-direction: column; gap: 5px; margin-top: 20px; }
-        .tide-bar { padding: 3px; text-align: center; font-size: 0.7rem; font-weight: bold; border-radius: 3px; background: #222; }
-        .tide-bar.high.active { background: var(--glow-red); color: #000; }
-        .tide-bar.med.active { background: var(--glow-green); color: #000; }
-        .tide-bar.low.active { background: var(--glow-blue); color: #000; }
-        .value-update { animation: flashUpdate 0.5s ease-out; }
-        @keyframes flashUpdate { 0% { opacity: 0.2; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1.02); } 100% { transform: scale(1); } }
-        @media (max-width: 768px) { .dashboard > div { grid-column: span 4 !important; } .temp-value { font-size: 4rem; } .clock-display { font-size: 4rem; } }
-        @keyframes blink { 50% { opacity: 0; } }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Segoe UI', sans-serif; 
+        }
+
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            padding: 20px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+        }
+
+        .unit-toggle { 
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            background: #222; 
+            color: white; 
+            border: 1px solid #444; 
+            padding: 8px 15px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            z-index: 100;
+            transition: 0.3s;
+        }
+
+        .unit-toggle:hover { 
+            background: #444; 
+            box-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
+        
+        .dashboard { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 25px; 
+            max-width: 800px; 
+            width: 100%; 
+        }
+        
+        .card { 
+            background-color: var(--card-bg); 
+            border-radius: 15px; 
+            padding: 30px; 
+            /* Đổ bóng để thẻ nổi bật lên, không bị đen thui */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8); 
+            border: 1px solid #333; 
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+            min-height: 280px;
+        }
+        
+        .digital-font { 
+            font-family: 'Share Tech Mono', monospace; 
+            line-height: 1; 
+        }
+
+        .title { 
+            font-size: 1.2rem; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            margin-bottom: 20px; 
+            color: var(--text-muted); 
+            font-weight: bold; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+        
+        /* Hiệu ứng phát sáng chữ */
+        .text-orange { color: var(--glow-orange); text-shadow: 0 0 15px rgba(255, 170, 0, 0.5); }
+        .text-blue { color: var(--glow-blue); text-shadow: 0 0 15px rgba(0, 229, 255, 0.5); }
+        .text-green { color: var(--glow-green); } 
+        
+        .sensor-data { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin: auto 0;
+        }
+        
+        .temp-value, .humid-value { 
+            font-size: 8rem; 
+            letter-spacing: -3px; 
+        } 
+
+        .unit { 
+            font-size: 2.5rem; 
+            vertical-align: super; 
+            margin-left: 5px; 
+            font-family: sans-serif; 
+            color: #ddd;
+        }
+        
+        .status-bar { 
+            display: flex; 
+            gap: 10px; 
+            margin-top: 20px; 
+            font-size: 0.8rem; 
+            justify-content: center; 
+        }
+
+        .status-badge { 
+            padding: 5px 15px; 
+            border-radius: 12px; 
+            background: #2a2a2a; 
+            color: #666; 
+            transition: all 0.3s ease;
+        }
+
+        .status-badge.active.good { background: var(--glow-green); color: #000; font-weight: bold; box-shadow: 0 0 15px var(--glow-green); }
+        .status-badge.active.dry { background: var(--glow-orange); color: #000; font-weight: bold; box-shadow: 0 0 15px var(--glow-orange);}
+        .status-badge.active.humid { background: var(--glow-blue); color: #000; font-weight: bold; box-shadow: 0 0 15px var(--glow-blue);}
+        
+        .value-update { 
+            animation: flashUpdate 0.5s ease-out; 
+        }
+
+        @keyframes flashUpdate { 
+            0% { opacity: 0.5; transform: scale(0.95); filter: brightness(1.5); } 
+            50% { opacity: 1; transform: scale(1.05); } 
+            100% { transform: scale(1); filter: brightness(1); } 
+        }
+        
+        @media (max-width: 768px) { 
+            .dashboard { grid-template-columns: 1fr; } 
+            .temp-value, .humid-value { font-size: 6rem; } 
+            .card { min-height: 220px; padding: 20px; }
+        }
     </style>
 </head>
 <body>
 
-    <button id="unitBtn" class="unit-toggle">°C / °F</button>
+    <button id="unitBtn" class="unit-toggle">Đổi °C / °F</button>
 
     <div class="dashboard">
-        <div class="card forecast">
-            <div class="title"><span class="text-green">Forecast</span> <span>&#8593;</span></div>
-            <div class="forecast-icons"><span>☀️</span><span>⛅</span><span>🌧️</span><span>⛈️</span></div>
-        </div>
-
-        <div class="card indoor">
-            <div class="title"><span class="text-blue">INDOOR</span> <span>MOLD RISK</span></div>
-            <div class="sensor-data text-blue">
-                <div><span class="digital-font temp-value" id="inTemp">--.-</span><span class="unit temp-unit">°C</span></div>
-                <div><span class="digital-font humid-value" id="inHum">--</span><span class="unit">%</span></div>
+        <!-- Khung Nhiệt Độ -->
+        <div class="card" style="border-top: 3px solid var(--glow-orange);">
+            <div class="title">
+                <span class="text-orange">TEMPERATURE</span> 
+                <span style="font-size: 1.5rem;">🌡️</span>
             </div>
-            <div class="status-bar">
-                <span class="status-badge humid" id="inHumidBadge">HUMID</span>
-                <span class="status-badge good active" id="inGoodBadge">GOOD</span>
-                <span class="status-badge dry" id="inDryBadge">DRY</span>
-            </div>
-        </div>
-
-        <div class="card pressure">
-            <div class="title">Pressure <span class="text-white">Rel</span></div>
-            <div class="text-white digital-font pressure-val">
-                <span id="pressureVal">1009</span><span class="unit" style="font-size: 1rem;">hPa</span>
-            </div>
-            <div style="font-size: 0.6rem; color: #777;">2mb/hPa 0.06inHg</div>
-            <div class="bar-chart" id="pressureChart"></div>
-        </div>
-
-        <div class="card tide">
-            <div style="text-align: center; font-size: 2rem;">🌖</div>
-            <div class="title" style="justify-content: center; margin-top: 15px;">TIDE</div>
-            <div class="tide-indicator">
-                <div class="tide-bar high">HIGH</div>
-                <div class="tide-bar med active">MEDIUM</div>
-                <div class="tide-bar low">LOW</div>
-            </div>
-        </div>
-
-        <div class="card outdoor">
-            <div class="title"><span class="text-orange">OUTDOOR</span> <span>📡</span></div>
             <div class="sensor-data text-orange">
-                <div><span class="digital-font temp-value" id="outTemp">--.-</span><span class="unit temp-unit">°C</span></div>
-                <div><span class="digital-font humid-value" id="outHum">--</span><span class="unit">%</span></div>
+                <div>
+                    <span class="digital-font temp-value" id="inTemp">0.0</span>
+                    <span class="unit temp-unit">°C</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Khung Độ Ẩm -->
+        <div class="card" style="border-top: 3px solid var(--glow-blue);">
+            <div class="title">
+                <span class="text-blue">HUMIDITY</span> 
+                <span style="font-size: 1.5rem;">💧</span>
+            </div>
+            <div class="sensor-data text-blue">
+                <div>
+                    <span class="digital-font humid-value" id="inHum">0</span>
+                    <span class="unit">%</span>
+                </div>
             </div>
             <div class="status-bar">
-                <span class="status-badge humid active">HUMID</span>
-                <span class="status-badge good">GOOD</span>
-                <span class="status-badge dry">DRY</span>
-            </div>
-        </div>
-
-        <div class="card sunrise-sunset">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-                <span style="font-size: 2rem;">🌅</span><div class="title" style="margin: 0;">SUNRISE</div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 2rem;">🌇</span><div class="title" style="margin: 0;">SUNSET</div>
-            </div>
-        </div>
-
-        <div class="card city-times">
-            <div class="title">CITY</div>
-            <div class="digital-font text-white" style="font-size: 2.5rem;">BER</div>
-            <div class="digital-font text-orange" style="font-size: 2rem; text-align: right; margin-top: auto;">16:30</div>
-            <div class="digital-font text-white" style="font-size: 2rem; text-align: right;">06:30</div>
-        </div>
-
-        <div class="card clock-panel">
-            <div class="digital-font text-white clock-display">
-                <span id="hours">10</span><span style="animation: blink 1s infinite;">:</span><span id="minutes">30</span>
-                <span id="seconds" style="font-size: 2rem; vertical-align: bottom;">54</span>
-            </div>
-            <div class="digital-font date-display">
-                <span id="dateStr" class="text-orange">16/JAN</span>
-                <span id="dayStr" class="text-orange">MONDAY</span>
+                <span class="status-badge dry" id="inDryBadge">DRY</span>
+                <span class="status-badge good active" id="inGoodBadge">GOOD</span>
+                <span class="status-badge humid" id="inHumidBadge">HUMID</span>
             </div>
         </div>
     </div>
 
+    <!-- CHÚ Ý: Đặt thư viện E-Ra ở cuối body để không bị lỗi trắng/đen màn hình -->
+    <script src="https://eoh-jsc.github.io/era-widget/era_widget.js"></script>
+    
     <script>
         let isCelsius = true;
-        let currentInTemp = 0; // Biến lưu tạm nhiệt độ để phục vụ việc chuyển đổi C/F
+        let currentInTemp = 0; // Biến lưu tạm để đổi C/F
 
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('hours').innerText = String(now.getHours()).padStart(2, '0');
-            document.getElementById('minutes').innerText = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('seconds').innerText = String(now.getSeconds()).padStart(2, '0');
-            const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
-            const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-            document.getElementById('dateStr').innerText = `${String(now.getDate()).padStart(2, '0')}/${months[now.getMonth()]}`;
-            document.getElementById('dayStr').innerText = days[now.getDay()];
-        }
-
+        // Hàm tạo hiệu ứng nháy khi có dữ liệu mới
         function animateValue(elementId) {
             const el = document.getElementById(elementId);
-            el.classList.remove('value-update');
-            void el.offsetWidth; 
-            el.classList.add('value-update');
+            if(el) {
+                el.classList.remove('value-update');
+                void el.offsetWidth; // Kích hoạt lại animation
+                el.classList.add('value-update');
+            }
         }
 
-        function cToF(celsius) { return (celsius * 9/5) + 32; }
+        // Công thức đổi độ C sang độ F
+        function cToF(celsius) { 
+            return (celsius * 9/5) + 32; 
+        }
 
+        // Cập nhật giá trị nhiệt độ lên màn hình
         function updateSensorData(sensorId, rawValueC) {
             const displayVal = isCelsius ? rawValueC : cToF(rawValueC);
-            document.getElementById(sensorId).innerText = displayVal.toFixed(1);
-            animateValue(sensorId);
+            const el = document.getElementById(sensorId);
+            if(el) {
+                el.innerText = displayVal.toFixed(1);
+                animateValue(sensorId);
+            }
         }
 
+        // Cập nhật thanh trạng thái độ ẩm (Khô / Tốt / Ẩm ướt)
         function updateIndoorStatus(humidity) {
             document.getElementById('inHumidBadge').classList.remove('active');
             document.getElementById('inGoodBadge').classList.remove('active');
             document.getElementById('inDryBadge').classList.remove('active');
 
-            if (humidity < 30) document.getElementById('inDryBadge').classList.add('active');
-            else if (humidity > 60) document.getElementById('inHumidBadge').classList.add('active');
-            else document.getElementById('inGoodBadge').classList.add('active');
-        }
-
-        function updateChart() {
-            const chart = document.getElementById('pressureChart');
-            chart.innerHTML = '';
-            for(let i=0; i<8; i++) {
-                const height = Math.floor(20 + Math.random() * 80);
-                const bar = document.createElement('div');
-                bar.className = 'bar';
-                bar.style.height = `${height}%`;
-                chart.appendChild(bar);
+            if (humidity < 30) {
+                document.getElementById('inDryBadge').classList.add('active');
+            } else if (humidity > 60) {
+                document.getElementById('inHumidBadge').classList.add('active');
+            } else {
+                document.getElementById('inGoodBadge').classList.add('active');
             }
         }
 
         // --- TÍCH HỢP E-RA IOT NHẬN DỮ LIỆU THỰC TẾ ---
-        const eraWidget = new EraWidget();
-        eraWidget.init({
-            onRealtime: function(data) {
-                // data[0] sẽ hứng giá trị từ chân V1 (Nhiệt độ)
-                if (data[0] !== undefined && data[0] !== null) {
-                    currentInTemp = data[0]; // Lưu lại để dùng cho nút bấm C/F
-                    updateSensorData('inTemp', data[0]);
+        // Sử dụng try...catch để nếu ERA chưa sẵn sàng thì web không bị chết (không bị đen thui)
+        try {
+            const eraWidget = new EraWidget();
+            eraWidget.init({
+                onRealtime: function(data) {
+                    // Cập nhật Nhiệt độ (data[0] ứng với V1)
+                    if (data && data[0] !== undefined && data[0] !== null) {
+                        currentInTemp = data[0];
+                        updateSensorData('inTemp', data[0]);
+                    }
+                    
+                    // Cập nhật Độ ẩm (data[1] ứng với V2)
+                    if (data && data[1] !== undefined && data[1] !== null) {
+                        const humidVal = parseInt(data[1]);
+                        document.getElementById('inHum').innerText = humidVal;
+                        animateValue('inHum');
+                        updateIndoorStatus(humidVal);
+                    }
                 }
-                
-                // data[1] sẽ hứng giá trị từ chân V2 (Độ ẩm)
-                if (data[1] !== undefined && data[1] !== null) {
-                    document.getElementById('inHum').innerText = data[1];
-                    animateValue('inHum');
-                    updateIndoorStatus(data[1]);
-                }
-            }
-        });
+            });
+        } catch (error) {
+            console.error("Lỗi khởi tạo E-Ra Widget. Vui lòng kiểm tra lại môi trường nhúng:", error);
+        }
 
-        // Xử lý nút bấm C/F
+        // Xử lý sự kiện khi bấm nút Đổi °C / °F
         document.getElementById('unitBtn').addEventListener('click', () => {
             isCelsius = !isCelsius;
             document.querySelectorAll('.temp-unit').forEach(u => u.innerText = isCelsius ? '°C' : '°F');
-            updateSensorData('inTemp', currentInTemp); // Cập nhật lại UI khi đổi đơn vị
+            updateSensorData('inTemp', currentInTemp); 
         });
 
-        setInterval(updateClock, 1000);
-        updateClock();
-        updateChart();
     </script>
 </body>
 </html>
