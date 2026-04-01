@@ -4,212 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IoT Weather Dashboard</title>
-    <!-- Sử dụng font chữ phong cách điện tử từ Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script src="https://eoh-jsc.github.io/era-widget/era_widget.js"></script>
     <style>
         :root {
-            --bg-color: #050505;
-            --card-bg: #1a1a1a;
-            --text-main: #ffffff;
-            --text-muted: #888888;
-            --glow-blue: #00e5ff;
-            --glow-orange: #ffaa00;
-            --glow-green: #00ff00;
-            --glow-red: #ff3333;
+            --bg-color: #050505; --card-bg: #1a1a1a; --text-main: #ffffff;
+            --text-muted: #888888; --glow-blue: #00e5ff; --glow-orange: #ffaa00;
+            --glow-green: #00ff00; --glow-red: #ff3333;
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        /* Nút chuyển đổi độ C / độ F */
-        .unit-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: #333;
-            color: white;
-            border: 1px solid #555;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            z-index: 100;
-        }
-
-        .unit-toggle:hover {
-            background: #444;
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            max-width: 1000px;
-            width: 100%;
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid #2a2a2a;
-        }
-
-        .digital-font {
-            font-family: 'Share Tech Mono', monospace;
-            line-height: 1;
-        }
-
-        /* Định nghĩa các khối Grid theo hình mẫu */
-        .forecast { grid-column: span 2; }
-        .indoor { grid-column: span 2; }
-        .pressure { grid-column: span 1; }
-        .tide { grid-column: span 1; }
-        .outdoor { grid-column: span 2; }
-        .sunrise-sunset { grid-column: span 1; }
-        .city-times { grid-column: span 1; }
-        .clock-panel { grid-column: span 2; }
-
-        /* Tiêu đề chung */
-        .title {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            color: var(--text-muted);
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        /* Hiệu ứng phát sáng */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .unit-toggle { position: absolute; top: 20px; right: 20px; background: #333; color: white; border: 1px solid #555; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; z-index: 100; }
+        .unit-toggle:hover { background: #444; }
+        .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; max-width: 1000px; width: 100%; }
+        .card { background-color: var(--card-bg); border-radius: 12px; padding: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; position: relative; overflow: hidden; border: 1px solid #2a2a2a; }
+        .digital-font { font-family: 'Share Tech Mono', monospace; line-height: 1; }
+        .forecast { grid-column: span 2; } .indoor { grid-column: span 2; }
+        .pressure { grid-column: span 1; } .tide { grid-column: span 1; }
+        .outdoor { grid-column: span 2; } .sunrise-sunset { grid-column: span 1; }
+        .city-times { grid-column: span 1; } .clock-panel { grid-column: span 2; }
+        .title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; color: var(--text-muted); font-weight: bold; display: flex; justify-content: space-between; }
         .text-blue { color: var(--glow-blue); text-shadow: 0 0 10px rgba(0, 229, 255, 0.5); }
         .text-orange { color: var(--glow-orange); text-shadow: 0 0 10px rgba(255, 170, 0, 0.5); }
-        .text-green { color: var(--glow-green); }
-        .text-red { color: var(--glow-red); }
+        .text-green { color: var(--glow-green); } .text-red { color: var(--glow-red); }
         .text-white { color: #fff; text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
-
-        /* Style giá trị cảm biến */
-        .sensor-data {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            margin-top: auto;
-        }
-
-        .temp-value { font-size: 5rem; letter-spacing: -2px; }
-        .humid-value { font-size: 4rem; }
+        .sensor-data { display: flex; align-items: baseline; justify-content: space-between; margin-top: auto; }
+        .temp-value { font-size: 5rem; letter-spacing: -2px; } .humid-value { font-size: 4rem; }
         .unit { font-size: 1.5rem; vertical-align: super; margin-left: 2px; font-family: sans-serif; }
-
-        /* Trạng thái khô/ẩm */
-        .status-bar {
-            display: flex;
-            gap: 5px;
-            margin-top: 10px;
-            font-size: 0.6rem;
-            justify-content: flex-end;
-        }
-        .status-badge {
-            padding: 2px 8px;
-            border-radius: 10px;
-            background: #333;
-            color: #777;
-        }
+        .status-bar { display: flex; gap: 5px; margin-top: 10px; font-size: 0.6rem; justify-content: flex-end; }
+        .status-badge { padding: 2px 8px; border-radius: 10px; background: #333; color: #777; }
         .status-badge.active.good { background: var(--glow-green); color: #000; font-weight: bold; box-shadow: 0 0 5px var(--glow-green); }
         .status-badge.active.dry { background: var(--glow-orange); color: #000; font-weight: bold; }
         .status-badge.active.humid { background: var(--glow-blue); color: #000; font-weight: bold; }
-
-        /* Thời tiết */
-        .forecast-icons {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            flex-grow: 1;
-            font-size: 3rem;
-        }
-        .forecast-icons span {
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
-        }
-
-        /* Đồng hồ & Ngày tháng */
-        .clock-display {
-            font-size: 6rem;
-            text-align: center;
-            margin-top: -10px;
-        }
-        .date-display {
-            font-size: 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            color: #ccc;
-        }
-
-        /* Áp suất & Biểu đồ */
+        .forecast-icons { display: flex; justify-content: space-around; align-items: center; flex-grow: 1; font-size: 3rem; }
+        .forecast-icons span { filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
+        .clock-display { font-size: 6rem; text-align: center; margin-top: -10px; }
+        .date-display { font-size: 1.5rem; display: flex; justify-content: space-between; margin-top: 10px; color: #ccc; }
         .pressure-val { font-size: 2.5rem; margin-bottom: 10px; }
-        .bar-chart {
-            display: flex;
-            align-items: flex-end;
-            gap: 3px;
-            height: 30px;
-            margin-top: 15px;
-        }
+        .bar-chart { display: flex; align-items: flex-end; gap: 3px; height: 30px; margin-top: 15px; }
         .bar { width: 10px; background: var(--glow-green); border-radius: 2px 2px 0 0; opacity: 0.7; }
-
-        /* Tide */
-        .tide-indicator {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            margin-top: 20px;
-        }
-        .tide-bar {
-            padding: 3px;
-            text-align: center;
-            font-size: 0.7rem;
-            font-weight: bold;
-            border-radius: 3px;
-            background: #222;
-        }
+        .tide-indicator { display: flex; flex-direction: column; gap: 5px; margin-top: 20px; }
+        .tide-bar { padding: 3px; text-align: center; font-size: 0.7rem; font-weight: bold; border-radius: 3px; background: #222; }
         .tide-bar.high.active { background: var(--glow-red); color: #000; }
         .tide-bar.med.active { background: var(--glow-green); color: #000; }
         .tide-bar.low.active { background: var(--glow-blue); color: #000; }
-
-        /* Animation khi cập nhật dữ liệu */
-        .value-update {
-            animation: flashUpdate 0.5s ease-out;
-        }
-        @keyframes flashUpdate {
-            0% { opacity: 0.2; transform: scale(0.98); }
-            50% { opacity: 1; transform: scale(1.02); }
-            100% { transform: scale(1); }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .dashboard > div { grid-column: span 4 !important; }
-            .temp-value { font-size: 4rem; }
-            .clock-display { font-size: 4rem; }
-        }
+        .value-update { animation: flashUpdate 0.5s ease-out; }
+        @keyframes flashUpdate { 0% { opacity: 0.2; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1.02); } 100% { transform: scale(1); } }
+        @media (max-width: 768px) { .dashboard > div { grid-column: span 4 !important; } .temp-value { font-size: 4rem; } .clock-display { font-size: 4rem; } }
+        @keyframes blink { 50% { opacity: 0; } }
     </style>
 </head>
 <body>
@@ -217,23 +59,16 @@
     <button id="unitBtn" class="unit-toggle">°C / °F</button>
 
     <div class="dashboard">
-        <!-- Panel Dự báo -->
         <div class="card forecast">
             <div class="title"><span class="text-green">Forecast</span> <span>&#8593;</span></div>
-            <div class="forecast-icons">
-                <span>☀️</span>
-                <span>⛅</span>
-                <span>🌧️</span>
-                <span>⛈️</span>
-            </div>
+            <div class="forecast-icons"><span>☀️</span><span>⛅</span><span>🌧️</span><span>⛈️</span></div>
         </div>
 
-        <!-- Panel Trong nhà -->
         <div class="card indoor">
             <div class="title"><span class="text-blue">INDOOR</span> <span>MOLD RISK</span></div>
             <div class="sensor-data text-blue">
-                <div><span class="digital-font temp-value" id="inTemp">36.5</span><span class="unit temp-unit">°C</span></div>
-                <div><span class="digital-font humid-value" id="inHum">64</span><span class="unit">%</span></div>
+                <div><span class="digital-font temp-value" id="inTemp">--.-</span><span class="unit temp-unit">°C</span></div>
+                <div><span class="digital-font humid-value" id="inHum">--</span><span class="unit">%</span></div>
             </div>
             <div class="status-bar">
                 <span class="status-badge humid" id="inHumidBadge">HUMID</span>
@@ -242,19 +77,15 @@
             </div>
         </div>
 
-        <!-- Panel Áp suất -->
         <div class="card pressure">
             <div class="title">Pressure <span class="text-white">Rel</span></div>
             <div class="text-white digital-font pressure-val">
                 <span id="pressureVal">1009</span><span class="unit" style="font-size: 1rem;">hPa</span>
             </div>
             <div style="font-size: 0.6rem; color: #777;">2mb/hPa 0.06inHg</div>
-            <div class="bar-chart" id="pressureChart">
-                <!-- Cột sinh tự động qua JS -->
-            </div>
+            <div class="bar-chart" id="pressureChart"></div>
         </div>
 
-        <!-- Panel Thủy triều / Pha Mặt trăng -->
         <div class="card tide">
             <div style="text-align: center; font-size: 2rem;">🌖</div>
             <div class="title" style="justify-content: center; margin-top: 15px;">TIDE</div>
@@ -265,12 +96,11 @@
             </div>
         </div>
 
-        <!-- Panel Ngoài trời -->
         <div class="card outdoor">
             <div class="title"><span class="text-orange">OUTDOOR</span> <span>📡</span></div>
             <div class="sensor-data text-orange">
-                <div><span class="digital-font temp-value" id="outTemp">27.6</span><span class="unit temp-unit">°C</span></div>
-                <div><span class="digital-font humid-value" id="outHum">72</span><span class="unit">%</span></div>
+                <div><span class="digital-font temp-value" id="outTemp">--.-</span><span class="unit temp-unit">°C</span></div>
+                <div><span class="digital-font humid-value" id="outHum">--</span><span class="unit">%</span></div>
             </div>
             <div class="status-bar">
                 <span class="status-badge humid active">HUMID</span>
@@ -279,19 +109,15 @@
             </div>
         </div>
 
-        <!-- Panel Bình minh / Hoàng hôn -->
         <div class="card sunrise-sunset">
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-                <span style="font-size: 2rem;">🌅</span>
-                <div class="title" style="margin: 0;">SUNRISE</div>
+                <span style="font-size: 2rem;">🌅</span><div class="title" style="margin: 0;">SUNRISE</div>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 2rem;">🌇</span>
-                <div class="title" style="margin: 0;">SUNSET</div>
+                <span style="font-size: 2rem;">🌇</span><div class="title" style="margin: 0;">SUNSET</div>
             </div>
         </div>
 
-        <!-- Panel Thành phố -->
         <div class="card city-times">
             <div class="title">CITY</div>
             <div class="digital-font text-white" style="font-size: 2.5rem;">BER</div>
@@ -299,7 +125,6 @@
             <div class="digital-font text-white" style="font-size: 2rem; text-align: right;">06:30</div>
         </div>
 
-        <!-- Panel Đồng hồ chính -->
         <div class="card clock-panel">
             <div class="digital-font text-white clock-display">
                 <span id="hours">10</span><span style="animation: blink 1s infinite;">:</span><span id="minutes">30</span>
@@ -312,52 +137,36 @@
         </div>
     </div>
 
-    <style>
-        @keyframes blink { 50% { opacity: 0; } }
-    </style>
-
     <script>
-        // --- CẤU HÌNH ---
         let isCelsius = true;
+        let currentInTemp = 0; // Biến lưu tạm nhiệt độ để phục vụ việc chuyển đổi C/F
 
-        // --- CÁC HÀM CẬP NHẬT GIAO DIỆN ---
-
-        // Cập nhật đồng hồ thời gian thực
         function updateClock() {
             const now = new Date();
             document.getElementById('hours').innerText = String(now.getHours()).padStart(2, '0');
             document.getElementById('minutes').innerText = String(now.getMinutes()).padStart(2, '0');
             document.getElementById('seconds').innerText = String(now.getSeconds()).padStart(2, '0');
-            
             const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
             const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-            
             document.getElementById('dateStr').innerText = `${String(now.getDate()).padStart(2, '0')}/${months[now.getMonth()]}`;
             document.getElementById('dayStr').innerText = days[now.getDay()];
         }
 
-        // Tạo hiệu ứng chớp tắt khi có dữ liệu mới
         function animateValue(elementId) {
             const el = document.getElementById(elementId);
             el.classList.remove('value-update');
-            void el.offsetWidth; // Kích hoạt lại reflow
+            void el.offsetWidth; 
             el.classList.add('value-update');
         }
 
-        // Chuyển đổi C sang F
-        function cToF(celsius) {
-            return (celsius * 9/5) + 32;
-        }
+        function cToF(celsius) { return (celsius * 9/5) + 32; }
 
-        // Hiển thị giá trị lên UI
         function updateSensorData(sensorId, rawValueC) {
             const displayVal = isCelsius ? rawValueC : cToF(rawValueC);
-            const el = document.getElementById(sensorId);
-            el.innerText = displayVal.toFixed(1);
+            document.getElementById(sensorId).innerText = displayVal.toFixed(1);
             animateValue(sensorId);
         }
 
-        // Cập nhật trạng thái không khí (Good/Humid/Dry)
         function updateIndoorStatus(humidity) {
             document.getElementById('inHumidBadge').classList.remove('active');
             document.getElementById('inGoodBadge').classList.remove('active');
@@ -368,42 +177,11 @@
             else document.getElementById('inGoodBadge').classList.add('active');
         }
 
-        // --- MÔ PHỎNG DỮ LIỆU IOT (Dành cho kiểm thử) ---
-        let mockIndoorTempC = 36.5;
-        let mockOutdoorTempC = 27.6;
-
-        function fetchMockData() {
-            // Dao động ngẫu nhiên nhỏ
-            mockIndoorTempC += (Math.random() - 0.5) * 0.5;
-            mockOutdoorTempC += (Math.random() - 0.5) * 0.8;
-            
-            const inHum = Math.floor(60 + Math.random() * 10);
-            const outHum = Math.floor(70 + Math.random() * 10);
-            const pressure = Math.floor(1005 + Math.random() * 10);
-
-            // Cập nhật UI
-            updateSensorData('inTemp', mockIndoorTempC);
-            updateSensorData('outTemp', mockOutdoorTempC);
-            
-            document.getElementById('inHum').innerText = inHum;
-            animateValue('inHum');
-            updateIndoorStatus(inHum);
-
-            document.getElementById('outHum').innerText = outHum;
-            animateValue('outHum');
-
-            document.getElementById('pressureVal').innerText = pressure;
-            animateValue('pressureVal');
-            
-            updateChart();
-        }
-
-        // Tạo biểu đồ cột nhỏ cho áp suất
         function updateChart() {
             const chart = document.getElementById('pressureChart');
             chart.innerHTML = '';
             for(let i=0; i<8; i++) {
-                const height = Math.floor(20 + Math.random() * 80); // 20% đến 100%
+                const height = Math.floor(20 + Math.random() * 80);
                 const bar = document.createElement('div');
                 bar.className = 'bar';
                 bar.style.height = `${height}%`;
@@ -411,46 +189,35 @@
             }
         }
 
-        // --- TÍCH HỢP HỆ THỐNG THỰC TẾ (MQTT / API Placeholder) ---
-        /*
-        // Ví dụ sử dụng Paho MQTT Client (Yêu cầu nhúng thư viện)
-        function setupMQTT() {
-            client = new Paho.MQTT.Client("broker.hivemq.com", 8000, "clientId-" + Math.random());
-            client.onMessageArrived = function(message) {
-                const topic = message.destinationName;
-                const payload = JSON.parse(message.payloadString);
-                
-                if(topic === "home/sensors/indoor") {
-                    mockIndoorTempC = payload.temperature;
-                    updateSensorData('inTemp', mockIndoorTempC);
-                    // Cập nhật độ ẩm tương tự...
+        // --- TÍCH HỢP E-RA IOT NHẬN DỮ LIỆU THỰC TẾ ---
+        const eraWidget = new EraWidget();
+        eraWidget.init({
+            onRealtime: function(data) {
+                // data[0] sẽ hứng giá trị từ chân V1 (Nhiệt độ)
+                if (data[0] !== undefined && data[0] !== null) {
+                    currentInTemp = data[0]; // Lưu lại để dùng cho nút bấm C/F
+                    updateSensorData('inTemp', data[0]);
                 }
-            };
-            client.connect({ onSuccess: () => client.subscribe("home/sensors/#") });
-        }
-        */
-
-        // --- KHỞI TẠO VÀ SỰ KIỆN ---
+                
+                // data[1] sẽ hứng giá trị từ chân V2 (Độ ẩm)
+                if (data[1] !== undefined && data[1] !== null) {
+                    document.getElementById('inHum').innerText = data[1];
+                    animateValue('inHum');
+                    updateIndoorStatus(data[1]);
+                }
+            }
+        });
 
         // Xử lý nút bấm C/F
         document.getElementById('unitBtn').addEventListener('click', () => {
             isCelsius = !isCelsius;
-            const units = document.querySelectorAll('.temp-unit');
-            units.forEach(u => u.innerText = isCelsius ? '°C' : '°F');
-            
-            // Ép cập nhật ngay lập tức
-            updateSensorData('inTemp', mockIndoorTempC);
-            updateSensorData('outTemp', mockOutdoorTempC);
+            document.querySelectorAll('.temp-unit').forEach(u => u.innerText = isCelsius ? '°C' : '°F');
+            updateSensorData('inTemp', currentInTemp); // Cập nhật lại UI khi đổi đơn vị
         });
 
-        // Bắt đầu vòng lặp
         setInterval(updateClock, 1000);
-        setInterval(fetchMockData, 3000); // Lấy dữ liệu mỗi 3 giây
-
-        // Chạy lần đầu
         updateClock();
         updateChart();
-        fetchMockData();
     </script>
 </body>
 </html>
